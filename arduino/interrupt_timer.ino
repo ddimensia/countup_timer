@@ -3,12 +3,17 @@
 #include "Adafruit_LEDBackpack.h"
 
 #define DISPLAY_ADDRESS 0x70
+#define RESET_PIN 4
+#define DIMMER_PIN 3
 
 // 7 segment display HT16K33
 Adafruit_7segment clockDisplay = Adafruit_7segment();
 
 // Last decimal value written to the display
 unsigned long lastTimeDisplayed = -1;
+
+// Brightness toggle
+bool bright = true;
 
 
 // timer for counting seconds
@@ -28,13 +33,23 @@ void TimerCallback0(void)
   togglePin = !togglePin;
 }
 
+void ResetCallback() {
+  if (secondsPassed != 0) {
+    Serial.println("Reset!!!");
+    secondsPassed = 0;
+  }
+}
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-
+  
   Serial.begin(115200);
   Serial.println("Counter starting!");
 
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(RESET_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(RESET_PIN), ResetCallback, FALLING);
+  pinMode(DIMMER_PIN, INPUT_PULLUP);
+  
   // Set up the flexible compare/prescaler for 1Hz, see Adafruit_ZeroTimer examples
   uint16_t compare = 48000000/1024;
   tc_clock_prescaler prescaler = TC_CLOCK_PRESCALER_DIV1024;
@@ -55,7 +70,18 @@ void setup() {
   timer.enable(true);
 }
 
-void loop() {
+void loop() {  
+  bool dimmerPin = digitalRead(DIMMER_PIN);
+  if (bright != dimmerPin) {
+    Serial.printf("Dimmer value changed to %s\n", dimmerPin ? "true" : "false");
+    bright = dimmerPin;
+    if (bright) {
+      clockDisplay.setBrightness(15);
+    } else {
+      clockDisplay.setBrightness(2);
+    }
+  }
+  
   unsigned long time = secondsPassed;
 
   unsigned long hours = time / (60 * 60);
@@ -75,5 +101,6 @@ void loop() {
     Serial.printf("Updated display to %d\n", timeToDisplay);
     lastTimeDisplayed = timeToDisplay;
   }
-  delay(1000);  
+
+  delay(100);  
 }
