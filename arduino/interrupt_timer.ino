@@ -78,7 +78,7 @@ void loop() {
     if (bright) {
       clockDisplay.setBrightness(15);
     } else {
-      clockDisplay.setBrightness(2);
+      clockDisplay.setBrightness(1);
     }
   }
   
@@ -87,8 +87,14 @@ void loop() {
   unsigned long hours = time / (60 * 60);
   unsigned long minutes = (time / 60) % 60;
   unsigned long timeToDisplay = hours * 100 + minutes;
-  // Don't bother updating the display unecessarily
-  if ( timeToDisplay != lastTimeDisplayed) { 
+  // Show seconds for the first 10 minutes, then update only every minute
+  if ( timeToDisplay < 10 ) {
+    clockDisplay.blinkRate(HT16K33_BLINK_OFF);
+    clockDisplay.print(timeToDisplay * 100 +  time % 60, DEC);
+    clockDisplay.drawColon(time % 2 == 0);
+    clockDisplay.writeDisplay();
+    lastTimeDisplayed = timeToDisplay;
+  } else if ( timeToDisplay != lastTimeDisplayed) { 
     if (timeToDisplay >= 150 && timeToDisplay < 155) {
       clockDisplay.blinkRate(HT16K33_BLINK_1HZ);
     } else if (timeToDisplay >= 155) {
@@ -102,5 +108,5 @@ void loop() {
     lastTimeDisplayed = timeToDisplay;
   }
 
-  delay(100);  
+  delay(100);
 }
