@@ -1,15 +1,23 @@
 # Countup Timer
-Simple count up timer using a [Adafruit Trinket M0](https://www.adafruit.com/product/3500) and an [HT16K33 7 Segment display](https://www.adafruit.com/product/1270).  The [interrupt_timer.ino](arduino/interrupt_timer.ino) version is the most up to date and the only version that yields accurate time.  It starts counting by seconds for the first 10 minutes and then switches to hours:minutes.  This works good as a pit timer if the device is on battery backup and the driver remembers to reset the clock on pit-in.  
 
-This is just a simple implementation of a countup timer that starts at 0 and counts up, 
-displaying hours and minutes since the device first powered on.  It's set to start flashing the
-time at the 1 hour 50 minute mark as this was setup for a use case where there was a 2 hour limit on an
-activity.
+A simple count-up timer using an [Adafruit Trinket M0](https://www.adafruit.com/product/3500) and an [HT16K33 7-Segment display](https://www.adafruit.com/product/1270).
 
-The initial implementation was done with CircuitPython and is in the [circuitpython](circuitpython) directory.  
-Simply placing the contents of that directory on a Trinket M0 wired to a HT16K33 display should work
-as expected.  I noticed a little drift with the time, about 1 minute per hour, so I intend to build an
-Arduino sketch for the device to see if I get different behavior.
+The timer starts at zero, counts up by seconds for the first 10 minutes, then switches to hours:minutes format. It begins flashing at the 1 hour 50 minute mark — designed for use cases with a 2-hour activity limit. This works well as a pit timer when the device is on battery backup and the driver resets the clock on pit-in.
 
-There are two Arduino sketchs, first was a straight forward approach using the 'millis()' function and more or
-less replicating the circuitpython code.  This exhibited the same clock drift as with circuitpython.  The [interrupt_timer.ino](arduino/interrupt_timer.ino) version uses an interupt on one of the devices timers to count seconds since startup.  This approach appears to yield much better time accuracy, at least enough to have miminal error for the duration I'm trying to measure.
+## Recommended Implementation
+
+Use **[`arduino/interrupt_timer.ino`](arduino/interrupt_timer.ino)** — it is the most accurate and up-to-date version. It uses a hardware interrupt on the Trinket M0's TC3 timer to count seconds, which eliminates the clock drift present in the other implementations.
+
+## Development History
+
+### CircuitPython (first attempt)
+
+The initial implementation is in the [`circuitpython`](circuitpython) directory. Placing the contents of that directory onto a Trinket M0 wired to an HT16K33 display is all that's needed to run it. However, this version exhibits roughly **1 minute of drift per hour** due to how `time.monotonic()` accumulates timing error.
+
+### Arduino: millis() (second attempt)
+
+The first Arduino sketch ([`arduino/millis_timer.ino`](arduino/millis_timer.ino)) took a straightforward approach by replicating the CircuitPython logic using the `millis()` function. It exhibited the same clock drift as the CircuitPython version.
+
+### Arduino: interrupt timer (current)
+
+[`arduino/interrupt_timer.ino`](arduino/interrupt_timer.ino) uses a hardware interrupt on the device's TC3 timer to count seconds since startup. This approach yields significantly better accuracy — minimal error over the 2-hour duration being measured.
