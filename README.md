@@ -1,5 +1,5 @@
 # Countup Timer
-Simple count up timer using a [Adafruit Trinket M0](https://www.adafruit.com/product/3500) and an [HT16K33 7 Segment display]{https://www.adafruit.com/product/127).  The [interrupt_timer.ino](arduino/interrupt_timer.ino) version is the most up to date and the only version that yields accurate time.  It starts counting by seconds for the first 10 minutes and then switches to hours:minutes.  This works good as a pit timer if the device is on battery backup and the driver remembers to reset the clock on pit-in.  
+Simple count up timer using a [Adafruit Trinket M0](https://www.adafruit.com/product/3500) and an [HT16K33 7 Segment display](https://www.adafruit.com/product/127).  The [interrupt_timer.ino](arduino/interrupt_timer.ino) version is the most up to date and the only version that yields accurate time.  It starts counting by seconds for the first 10 minutes and then switches to hours:minutes.  This works good as a pit timer if the device is on battery backup and the driver remembers to reset the clock on pit-in.  
 
 This is just a simple implementation of a countup timer that starts at 0 and counts up, 
 displaying hours and minutes since the device first powered on.  It's set to start flashing the
